@@ -1,7 +1,8 @@
-#include <stdio.h>
+//#include <stdio.h>
 //Mètodo imprime la informaciòn del archivo de texto en pantalla
 #include <string.h>
 #include <stdlib.h>
+#include "Ultima_Union.c"
 //Creacion de un struct para que almacene la informacion del txt
 struct Info_Contacto{
 	char *IP;//variable almacena valores ingresados por usuario
@@ -55,11 +56,17 @@ void Separar_info(char * caracter, int Contador){ // separa la linea de caracter
 	Lista[Contador].Usuario=&NOM[0];
 	Lista[Contador].IP=&I[0];
 	Lista[Contador].Puerto=&P[0];
-	printf("\nEstoy en el struct U: %s", Lista[Contador].Usuario);
-	printf("\nEstoy en el struct I: %s", Lista[Contador].IP);
-	printf("\nEstoy en el struct  P: %s",Lista[Contador].Puerto);
+	printf("\nNombre de usuario: %s", Lista[Contador].Usuario);
+	printf("\nDireccion IP: %s", Lista[Contador].IP);
+	
+	printf("\nPuerto: %s",Lista[Contador].Puerto);
 	int puerto= atoi(Lista[Contador].Puerto); //convierte el string a int
+	if (fork())
+		Servidor();
+	else
+		Cliente(puerto,Lista[Contador].IP);
 	printf("%d", puerto);
+	
 	}
 	
 ////////////////////////////////////////////////////////////////
@@ -73,7 +80,7 @@ void Imprime(FILE * F){ //imprime lista de usuarios
 		//obtengo hilera
 		fgets(caracter,100,F);
 		//printf("%s",caracter);
-		if ((c>0) && (caracter[0]!='\0')){
+		if ((c>0) && (caracter[0]!=0)){
 			Linea=&caracter[0];
 			while (*Linea!='-'){
 			Nombre[p]=*Linea;
@@ -82,11 +89,8 @@ void Imprime(FILE * F){ //imprime lista de usuarios
 			}
 		Nombre[p]='\0';
 		printf("\n%s",Nombre);
-		bzero((char*)&Nombre,sizeof(Nombre)); //limpia el arreglo
-				printf("\n%s",Nombre);
-
 	}		
-	
+	bzero((char*)&Nombre,sizeof(Nombre)); //limpia el arreglo
 
 	p=0;	
 	c++;
@@ -147,7 +151,6 @@ int escribir_Archivo(FILE * F){
 	fputs("-",F);
 	fputs(Puerto,F);
 	
-	
 	fputs("\n",F); //cambia de linea el txt
 	return 1;
 }
@@ -167,12 +170,17 @@ int Lectura_Escritura(int opc){ //metodo que abre el archivo
 		Imprime(F); //imprime usuarios
 	}
 	fclose(F);  //se cierra el archivo
-	printf("\nListo\n");
+	printf("\n\n---------------------Accion Finalizada------------------------\n");
+	main();
 	return 1;
 	}
 ////////////////////////////////////////////////////////////
 int main (){
-	//mensaje de que usuario no existe
-	Lectura_Escritura(3);
+	int opcion;
+	printf("----------------------MENSAJERIA------------------\n");
+	printf("-------------------------MENU---------------------\n\n\nDIGITE\n\n1---->Agregar Contacto\n2---->Iniciar Conversacion\n3---->Imprimir Lista de Contactos\n\nOpcion:  ");
+	scanf("%d",&opcion);
+	Lectura_Escritura(opcion);
 	
 	return 1;}
+
