@@ -12,6 +12,26 @@
 #define BLANCO  "\033[00;37m" // DEFINE COLOR BLANCO
 #define AZUL  "\x1B[34m" // DEFINE COLOR AZUL
 
+//Funcion "config" para tomar el puerto del servidor
+int Obtener_Puerto(){ FILE*F; //se crea apuntador
+ F= fopen("Archivo_Config", "r+"); //fopenf funciòn permite abrir archivo y r leerlo 
+ if (F==NULL) // si no encontro el archivo 
+ printf("\nError en archivo\n");
+  else{ char numero[5];
+   int contador=0;
+    while (feof(F) == 0){ //mientras que no llegue al final del archivo 
+    fgets(numero,100,F); 
+    if (contador==0){ 
+		contador++; 
+		int Puerto= atoi(numero); 
+		//printf("%s", numero);
+		 bzero((char*)&numero,sizeof(numero)); 
+		 return Puerto; }
+		  } 
+		 } 
+		 fclose(F); //se cierra el archivo 
+		 return 0; }
+
 
 void Servidor()
 {
