@@ -101,7 +101,6 @@ while(1)
    if (strncmp(msg,"1",1)==0) // mientras sea diferente de salir, 
 		{
 		printf("\nAdios\n");
-		
 		kill(getpid()-1, SIGKILL);
 		break;
 		}
@@ -157,7 +156,8 @@ while(1){
         if (strncmp(msg,"1",1)==0)	 // mientras sea diferente de salir, 
 		{
 		//printf("\nAdios\n");
-		kill(getpid()-1, SIGKILL);	 //Mata los procesos
+		send(socket_C, "1", 256,0);
+		kill(getpid()+1, SIGKILL);	 //Mata los procesos
 		
 		break;
 		}
@@ -171,19 +171,19 @@ while(1){
 	
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 
 
 //Creacion de un struct para que almacene la informacion del txt0
-struct Info_Contacto{
+struct Lista_Contactos{
 	char *IP;//variable almacena valores ingresados por usuario
 	char *Puerto;
 	char *Usuario;
 	};
 
-struct Info_Contacto Lista[100]; // arreglo de struct, para que almacene la info del struct (da problemas)
+struct Lista_Contactos Lista[100]; // arreglo de struct, para que almacene la info del struct (da problemas)
 int Es_Usuario(char * caracter, char * ptr){ //valida que el usuario que busca se encuentra en el txt
 	if (*caracter!= *ptr)
 	return 0;
@@ -199,8 +199,10 @@ int Es_Usuario(char * caracter, char * ptr){ //valida que el usuario que busca s
 	return 1;
 
 	}
-/////////////////////////////////////////////////////////////////	
-void Separar_info(char * caracter, int Contador){ // separa la linea de caracteres, y almacena la info en un arreglo de struct
+	
+//*********************Separa la linea de caracteres, y almacena la info en un arreglo de struct******************************\\
+
+void Manejo_Contactos(char * caracter, int Contador){ 
 	char NOM[20];
 	char I[20];
 	char P[20];
@@ -238,12 +240,13 @@ void Separar_info(char * caracter, int Contador){ // separa la linea de caracter
 	else
 		{Cliente(puerto,Lista[Contador].IP);
 		main();}
-	printf("%d", puerto);
+	//printf("%d", puerto);
 	
 	}
 	
-////////////////////////////////////////////////////////////////
-void Imprime(FILE * F){ //imprime lista de usuarios
+//*********************Imprime en consola los contactos guardados************************************\\
+
+void Consulta_Contactos(FILE * F){ //imprime lista de usuarios
 	char Nombre[30];
 	char * Linea;
 	int c=0;
@@ -272,9 +275,9 @@ void Imprime(FILE * F){ //imprime lista de usuarios
 	 
 	}
 	
-////////////////////////////////////////////////////////////////
+//*********************Carga los contactos almacenados en el archivo de texto.************************************\\
 
-int leer_Archivo(FILE * F){
+int Cargar_Contactos(FILE * F){
 		
 	char N [20];
 			printf("Ingrese nombre usuario ");
@@ -291,7 +294,7 @@ int leer_Archivo(FILE * F){
 		//printf("%s",caracter);
 		if ((c>0) && (caracter[0]!=0)){ //condicion del txt
 			if(Es_Usuario(&caracter[0], ptr)){ //revisa que el usuario sea el que estoy buscando
-			Separar_info(&caracter[0],c-1);  //metodo que separa informacion del arreglo y envia direccion e IP
+			Manejo_Contactos(&caracter[0],c-1);  //metodo que separa informacion del arreglo y envia direccion e IP
 			return 1;//retorna que encontro al usuario
 	}
 	}
@@ -302,9 +305,10 @@ int leer_Archivo(FILE * F){
 	printf("Usuario no encontrado");
 	return 0; //sino encontro al usuario
 	}
-//////////////////////////////////////////////////////////////////////////
-//Mètodo que escribe en el archivo de texto la informaciòn ingresada desde la consola
-int escribir_Archivo(FILE * F){
+	
+//******************************Agrega nuevos Contactos al archivo de texto.**********************************************\\
+
+int Agregar_Contacto(FILE * F){
 	char IP[20];//variable almacena valores ingresados por usuario
 	char Puerto[20];
 	char Usuario[20];
@@ -327,32 +331,33 @@ int escribir_Archivo(FILE * F){
 	fputs("\n",F); //cambia de linea el txt
 	return 1;
 }
-////////////////////////////////////////////////////////////////
-int Lectura_Escritura(int opc){ //metodo que abre el archivo
+
+//********************Inicio del programa********************************************************\\
+
+	
+void main (){
+	int opcion;
+	printf("----------------------MENSAJERIA------------------\n");
+	printf("-------------------------MENU---------------------\n\n\nDIGITE\n\n1---->Agregar Contacto\n2---->Iniciar Conversacion\n3---->Imprimir Lista de Contactos\n\nOpcion:  ");
+	scanf("%d",&opcion);
 	FILE*F; //se crea apuntador
 	F= fopen("ArchivoDeAlmacenamiento", "r+"); //fopenf funciòn permite abrir archivo y r leerlo
 	if (F==NULL) // si no encontro el archivo
 		printf("\nError en archivo\n");
 
 	else{
-		if (opc==1) //agrega usuario
-		escribir_Archivo(F);
-		else if (opc==2)
-		leer_Archivo(F); //busca usuario
-		else
-		Imprime(F); //imprime usuarios
-	}
+		if (opcion==1){ //agrega usuario
+		Agregar_Contacto(F);
+		main();}
+		else if (opcion==2)
+		Cargar_Contactos(F); //busca usuario
+		else if (opcion==3){
+		Consulta_Contactos(F); //imprime usuarios
+		main();}
+		else{
+		printf("Opción Inválida, intente de nuevo!\n\n");
+		main();}	
+		}
 	fclose(F);  //se cierra el archivo
 	printf("\n\n---------------------Accion Finalizada------------------------\n");
-	//main();
-	return 1;
-	}
-////////////////////////////////////////////////////////////
-void main (){
-	int opcion;
-	printf("----------------------MENSAJERIA------------------\n");
-	printf("-------------------------MENU---------------------\n\n\nDIGITE\n\n1---->Agregar Contacto\n2---->Iniciar Conversacion\n3---->Imprimir Lista de Contactos\n\nOpcion:  ");
-	scanf("%d",&opcion);
-	Lectura_Escritura(opcion);
-	
 	}
